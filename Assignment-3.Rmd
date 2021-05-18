@@ -16,7 +16,8 @@ pacman::p_load(
   ggplot2,
   rstudioapi,
   tinytex,
-  dplyr
+  dplyr,
+  purrr
 )
 ```
 
@@ -52,14 +53,45 @@ ggplot(data.frame(pvals), aes(x=pvals)) +
 
 If none of the metabolites differed, then by chance, we would have expected around 5% of values to fall under the 0.05 p-value threshold. This would equate to the histogram generally being flat over the whole range of 0 - 1.00. Instead we see a large proportion of p-values appearing in the 0.00 - 0.05 range, indicating that there may be multiple metabolites that differ across conditions.
 
-NEXT: Compute q-values - inside w6 lab
+```{r question-1-qvalues}
+qval.pi0<-function(pvals, pi0=1){
+  #pvals should not have missing values
+  #default value of pi0 is 1, but another can be specified.
+  ord<-order(pvals, decreasing = TRUE)
+  pord<-pvals[ord]
+  answer.ord<-rep(NA,length(pvals) )
+  answer<-rep(NA, length(pvals))
+  denominator<-sum(pord <= pord[1]) #number of discoveries using pord[i] as the threshold
+  numerator<- pord[1]*length(pord)*pi0  #expected number of false discoveries
+  answer.ord[1]<-numerator/denominator
+  for(i in 1: length(pord)){
+    denominator<-sum(pord <= pord[i])
+    numerator<- pord[i]*length(pord)*pi0
+    if( numerator/denominator <= min(answer.ord[1:(i-1)]) ) answer.ord[i]<-numerator/denominator
+    if( numerator/denominator > min(answer.ord[1:(i-1)]) ) answer.ord[i]<- min(answer.ord[1:(i-1)])
+  }
+  answer[ord]<-answer.ord
+  return(answer)
+}
+
+qvals <- qval.pi0(pvals)
+
+qvals.significant <- sum(qvals < 0.05)
+
+print("Number of observations with significant q-values: " %>% paste0(qvals.significant))
 
 
+```
 
+```{r question-1-q&pvals}
 
+qandp.significant <- sum((qvals >= 0.05) * (pvals < 0.05))
 
+print("Number of observations with significant p-values but non-significant q-values: " %>% paste0(qandp.significant))
 
+```
 
+### Question 2
 
 
 
