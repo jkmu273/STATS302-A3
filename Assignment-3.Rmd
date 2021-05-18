@@ -3,9 +3,9 @@ title: "STATS 302 - Assignment 3"
 author: "Jonathan Kumarich"
 date: "18/05/2021"
 output:
+  html_document: default
   word_document: default
   pdf_document: default
-  html_document: default
 ---
 
 ### Packages and clear
@@ -15,16 +15,55 @@ rm(list=ls())
 pacman::p_load(
   ggplot2,
   rstudioapi,
-  tinytex
+  tinytex,
+  dplyr
 )
 ```
 
 ### Data Import
 ```{r data-import}
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
 getwd()
 
 fungal <- read.csv("fungal-all.csv")
+fungal.desc <- fungal[, 1:5]
+fungal.val <- fungal[ ,-c(1:5)]
+rm(fungal)
 ```
+
+### Question 1
+```{r question-1}
+pvals <- rep(NA, ncol(fungal.val))
+
+for (i in 1:ncol(fungal.val)) {
+  test <- kruskal.test(fungal.val[, i] ~ fungal.desc$Condition)
+  pvals[i] <- test$p.value
+}
+
+ggplot(data.frame(pvals), aes(x=pvals)) + 
+  geom_histogram(fill="#004775", color="black", bins=20) + 
+  theme_classic() +
+  xlab("P-Values") + 
+  ylab("Count") + 
+  ggtitle("Distribution of P-Values") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+```
+
+If none of the metabolites differed, then by chance, we would have expected around 5% of values to fall under the 0.05 p-value threshold. This would equate to the histogram generally being flat over the whole range of 0 - 1.00. Instead we see a large proportion of p-values appearing in the 0.00 - 0.05 range, indicating that there may be multiple metabolites that differ across conditions.
+
+NEXT: Compute q-values - inside w6 lab
+
+
+
+
+
+
+
+
+
+
+
+
+
 

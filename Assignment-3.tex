@@ -120,7 +120,8 @@
 \NormalTok{pacman}\SpecialCharTok{::}\FunctionTok{p\_load}\NormalTok{(}
 \NormalTok{  ggplot2,}
 \NormalTok{  rstudioapi,}
-\NormalTok{  tinytex}
+\NormalTok{  tinytex,}
+\NormalTok{  dplyr}
 \NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -131,7 +132,6 @@
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{setwd}\NormalTok{(}\FunctionTok{dirname}\NormalTok{(rstudioapi}\SpecialCharTok{::}\FunctionTok{getActiveDocumentContext}\NormalTok{()}\SpecialCharTok{$}\NormalTok{path))}
-
 \FunctionTok{getwd}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
@@ -142,9 +142,39 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\#load(file = here::here(""))}
+\NormalTok{fungal }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"fungal{-}all.csv"}\NormalTok{)}
+\NormalTok{fungal.desc }\OtherTok{\textless{}{-}}\NormalTok{ fungal[, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{]}
+\NormalTok{fungal.val }\OtherTok{\textless{}{-}}\NormalTok{ fungal[ ,}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)]}
+\FunctionTok{rm}\NormalTok{(fungal)}
 \end{Highlighting}
 \end{Shaded}
 
+\hypertarget{question-1}{%
+\subsubsection{Question 1}\label{question-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pvals }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, }\FunctionTok{ncol}\NormalTok{(fungal.val))}
+
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{ncol}\NormalTok{(fungal.val)) \{}
+\NormalTok{  test }\OtherTok{\textless{}{-}} \FunctionTok{kruskal.test}\NormalTok{(fungal.val[, i] }\SpecialCharTok{\textasciitilde{}}\NormalTok{ fungal.desc}\SpecialCharTok{$}\NormalTok{Condition)}
+\NormalTok{  pvals[i] }\OtherTok{\textless{}{-}}\NormalTok{ test}\SpecialCharTok{$}\NormalTok{p.value}
+\NormalTok{\}}
+
+\FunctionTok{ggplot}\NormalTok{(}\FunctionTok{data.frame}\NormalTok{(pvals), }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{pvals)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{fill=}\StringTok{"\#004775"}\NormalTok{, }\AttributeTok{color=}\StringTok{"black"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{theme\_classic}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{xlab}\NormalTok{(}\StringTok{"P{-}Values"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{ylab}\NormalTok{(}\StringTok{"Count"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Distribution of P{-}Values"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+\end{verbatim}
+
+\includegraphics{Assignment-3_files/figure-latex/question-1-1.pdf}
 
 \end{document}
