@@ -1,0 +1,30 @@
+---
+title: "STATS 302 - Assignment 3"
+author: "Jonathan Kumarich"
+date: "18/05/2021"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+### Packages and clear
+```{r setup}
+rm(list=ls())
+
+pacman::p_load(
+  ggplot2,
+  rstudioapi,
+  tinytex
+)
+```
+
+### Data Import
+```{r data-import}
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+getwd()
+
+fungal <- read.csv("fungal-all.csv")
+```
+
