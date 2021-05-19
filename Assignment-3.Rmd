@@ -123,6 +123,33 @@ Candida and Pichia are quite hard to distinguish as they seem relatively unrelat
 ### Question 3
 ```{r question-3} 
 
+plsda.perf <- plsda.output %>% perf(validaton='loo', folds=6, nrepeat=10)
+
+plsda.perf %>% plot()
 
 ```
+
+```{r question-3-BER}
+
+plsda.perf$error.rate$BER
+
+```
+
+We can see that the balanced error rate is the lowers for the Mahalanobis distance at 11 components, indication that we should use all 11 components.
+
+We want to use the balanced error rate from the plot as the groups are of different sizes and we would like them to all have equal weight when determining the error rate.
+
+### Question 4
+```{r question-4}
+
+```
+
+
+
+
+
+
+
+
+
 
