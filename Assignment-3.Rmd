@@ -226,9 +226,12 @@ Here we have a non-significant p-value (0.381) which further indicates multivari
 
 ```{r question-5}
 
+summary(mod, test="Pillai", df = ncol(funsub))
+
+
 ```
 
-
+Using the MANOVA fit earlier, we calculated Pillai's trace of the metabolites with respect to Condition. We got a highly significant p-value indicating a strong relationship between the condition and the metabolite values. This fits the assumptions of the MANOVA, since there was similar within-group covariances and multivariate normality, as seen previously in question 4. 
 
 
 
