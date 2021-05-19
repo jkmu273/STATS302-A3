@@ -17,8 +17,15 @@ pacman::p_load(
   rstudioapi,
   tinytex,
   dplyr,
-  purrr
+  purrr,
+  vegan
 )
+
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install("mixOmics")
+
+library(mixOmics)
+
 ```
 
 ### Data Import
@@ -39,7 +46,7 @@ pvals <- rep(NA, ncol(fungal.val))
 for (i in 1:ncol(fungal.val)) {
   test <- kruskal.test(fungal.val[, i] ~ fungal.desc$Condition)
   pvals[i] <- test$p.value
-}
+}; rm(test)
 
 ggplot(data.frame(pvals), aes(x=pvals)) + 
   geom_histogram(fill="#004775", color="black", bins=20) + 
@@ -93,9 +100,29 @@ print("Number of observations with significant p-values but non-significant q-va
 
 ### Question 2
 
+```{r question-2}
+
+plsda.output <- plsda(X=fungal.val ,Y=fungal.desc$genera, scale=TRUE, ncomp=11) 
+
+plotVar(plsda.output, cex=2)
+
+```
+
+There appears to be a large number of variables that are very highly associated with Component 1 (with a slight negative association to Component 2), as well as a large number of variables that have a very high association to Component 1 (with a slight positive association to Component 1. There also appears to be a significant number of variables that have very low associations with both components.
+
+```{r question-2-plotindiv}
+
+plotIndiv(plsda.output, comp=1:2, ind.names=F, legend=T)
+
+```
+
+We can see from the plot of individuals that a lot of the genera types have been separated out. Genera such as Kluyveromyces, Clavispora, and Trichosporon, all have very high levels of X-variate 1, but all are quite hard to distinguish from each other within this sub-group (except Clavispora which has a lower X-variate 2). On the other hand, the Broth, Scedosporium, and Saccharomyces all have relatively low levels of X-variate 1. Exophiala and Coniochaeta, both have X-variate 1 values centered around zero.
+
+Candida and Pichia are quite hard to distinguish as they seem relatively unrelated to both X-variate 1 and 2.
+
+### Question 3
+```{r question-3} 
 
 
-
-
-
+```
 
