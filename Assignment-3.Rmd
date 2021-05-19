@@ -18,7 +18,8 @@ pacman::p_load(
   tinytex,
   dplyr,
   purrr,
-  vegan
+  vegan,
+  MASS
 )
 
 if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
@@ -142,12 +143,90 @@ We want to use the balanced error rate from the plot as the groups are of differ
 ### Question 4
 ```{r question-4}
 
+funsub <- read.csv("funsub-assignment.csv")
+
+condition <- funsub$Condition
+metabolites <- funsub[, 5:ncol(funsub)]
+
+mod <- manova(as.matrix(metabolites) ~ condition)
+
+W <- summary(mod)$SS$Residual
+
+Sigma <- data.frame(W / (nrow(metabolites) - 2))
 ```
 
 
+```{r question4-group-centers}
+
+apply(funsub[funsub$Condition=="d_SCFA",5:28],2,mean)->SCFA.mean
+apply(funsub[funsub$Condition=="Control",5:28],2,mean)->Ctrl.mean
+matmean<-matrix(rep(NA,24*108), ncol=24)
+for(i in 1:108){
+if(funsub$Condition[i]=='d_SCFA'){  
+matmean[i,]<-SCFA.mean}
+  else{
+matmean[i,]<-Ctrl.mean}}
+funsub.center<-funsub[,5:28]-matmean
+
+distances <- mahalanobis(funsub.center, 0, Sigma) 
+hist(distances)
+
+```
+
+```{r question-4-cov-test}
+
+kruskal.test(as.matrix(funsub.center)[,2] ~ funsub$Condition)
+
+pvals <- rep(NA, ncol(funsub.center))
+
+for (i in 1:ncol(funsub.center)) {
+  test <- kruskal.test(funsub.center[, i] ~ funsub$Condition)
+  pvals[i] <- test$p.value
+}; rm(test)
+
+ggplot(data.frame(pvals), aes(x=pvals)) + 
+  geom_histogram(fill="#004775", color="black", bins=20) + 
+  theme_classic() +
+  xlab("P-Values") + 
+  xlim(0,1)
+  ylab("Count") + 
+  ggtitle("Distribution of P-Values") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+Looking at the VanValens test for all of the metabolites, we can see that all of them have non-significant p-values which indicate that the within group covariances are similar.
 
 
+```{r questino-4-qqplot}
 
+qqplot(
+  qchisq(
+    ppoints(nrow(funsub.center)), 
+    df=ncol(funsub.center)), 
+  distances, 
+  main="Mahlanobis distances vs Chi-squared distribuiton", 
+  xlab='Chisq Quantiles') 
+abline(0,1)
+
+```
+
+The quantiles of distances appear to follow a chi-squared distribution which also provides evidence for multivariate normality.
+
+
+```{r question-4-dist-test}
+
+ks.test(distances, "pchisq", df=ncol(funsub.center))
+
+```
+
+Here we have a non-significant p-value (0.381) which further indicates multivariate normality.
+
+
+### Question 5
+
+```{r question-5}
+
+```
 
 
 
